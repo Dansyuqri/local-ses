@@ -37,4 +37,11 @@ logInfo(`Email sent to ${toAddress} with message ID ${result.MessageId}`);
 
 ## License
 
-MIT © [Kamran Ahmed](https://twitter.com/kamrify)
+MIT © [Syuqri](https://github.com/Dansyuqri)
+
+## Acknowledgments
+This repo is a fork from [Kamran Ahmed's local-ses](https://github.com/kamranahmedse/local-ses)
+It was forked with the main purpose of adding missing functionality, without the overhead of approvals.
+
+## Contributions
+Open to contributions!
