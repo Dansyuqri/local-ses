@@ -10,6 +10,8 @@
   - SendEmail API
   - SendRawEmail API (supports both base64 encoded and plain text raw messages)
 - ✅ **SES v2 Support**: Full support for AWS SES v2 API (JSON requests)
+  - SendEmail API  
+  - SendRawEmail API (supports both base64 encoded and plain text raw messages)
 - ✅ **Email Testing**: Simulate delivery, bounces, complaints, and clicks
 - ✅ **Real-time UI**: View trapped emails in a modern web interface
 - ✅ **Docker Ready**: Easy deployment with Docker
@@ -106,6 +108,48 @@ const command = new SendEmailCommand({
 
 const result = await client.send(command);
 console.log(`Email sent with message ID: ${result.MessageId}`);
+```
+
+#### SES v2 SendRawEmail Support
+
+SES v2 also supports `SendRawEmail` for sending raw email messages:
+
+```javascript
+import { SESv2Client, SendRawEmailCommand } from "@aws-sdk/client-sesv2";
+
+const client = new SESv2Client({
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: "test",
+    secretAccessKey: "test",
+  },
+  endpoint: "http://localhost:8282", // <--- Add this to trap emails locally
+});
+
+// Create a raw email message
+const rawMessage = `From: sender@example.com
+To: recipient@example.com
+Subject: Test Raw Email (SES v2)
+Content-Type: text/html; charset=UTF-8
+
+<html>
+<body>
+<h1>This is a raw email</h1>
+<p>Sent using SES v2 SendRawEmail API</p>
+</body>
+</html>`;
+
+// Send raw email using SES v2
+const command = new SendRawEmailCommand({
+  FromEmailAddress: "sender@example.com",
+  Destinations: ["recipient@example.com"],
+  RawMessage: {
+    Data: rawMessage, // Can be base64 encoded or plain text
+  }
+});
+
+const result = await client.send(command);
+console.log(`Raw email sent with message ID: ${result.MessageId}`);
 ```
 
 ### SES v1
