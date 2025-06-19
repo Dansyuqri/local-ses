@@ -22,6 +22,44 @@ docker run -d --name local-ses -p 8282:8282 dansyuqri/local-ses:latest
 
 This will start the service on port `8282`. Next, modify your SES client to use the local service.
 
+## Development
+
+### Using Make Commands
+
+The project includes a `Makefile` with convenient commands for development and deployment:
+
+```bash
+# Build Docker image for multiple platforms and push to registry
+make build
+
+# Run the Docker container locally
+make run
+
+# Run tests
+make test
+```
+
+### Local Development
+
+For local development without Docker:
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server on port 8282
+pnpm run dev
+
+# Build for production
+pnpm run build
+
+# Run production build
+pnpm run prod
+
+# Run tests
+pnpm run test
+```
+
 ### SES v2 (Recommended)
 
 For the newer AWS SES v2 API using `@aws-sdk/client-sesv2`:

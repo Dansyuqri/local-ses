@@ -26,7 +26,7 @@ export const POST: APIRoute = async ({ request }) => {
     const email: EmailType = {
       id: emails.length + 1,
       messageId: `${Math.random().toString(36).substring(7)}-${Date.now()}@amazonses.com`,
-      to: Destination.ToAddresses[0],
+      to: Destination.ToAddresses.join(', '), // Convert array to string for storage
       from: FromEmailAddress,
       subject: Content.Simple?.Subject?.Data || Content.Template?.TemplateName || "No Subject",
       html: Content.Simple?.Body?.Html?.Data || Content.Template?.TemplateData || "",

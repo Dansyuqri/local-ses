@@ -12,7 +12,9 @@ async function testSESv1() {
   const sesv1Data = new URLSearchParams({
     'Action': 'SendEmail',
     'Source': 'sender@example.com',
-    'Destination.ToAddresses.member.1': 'recipient@example.com',
+    'Destination.ToAddresses.member.1': 'recipient1@example.com',
+    'Destination.ToAddresses.member.2': 'recipient2@example.com',
+    'Destination.ToAddresses.member.3': 'recipient3@example.com',
     'Message.Subject.Data': 'Test SES v1 Email',
     'Message.Body.Text.Data': 'This is a test email from SES v1',
     'Message.Body.Html.Data': '<h1>This is a test email from SES v1</h1>'
@@ -46,7 +48,7 @@ async function testSESv2() {
   const sesv2Data = {
     FromEmailAddress: 'sender@example.com',
     Destination: {
-      ToAddresses: ['recipient@example.com']
+      ToAddresses: ['recipient1@example.com', 'recipient2@example.com', 'recipient3@example.com']
     },
     Content: {
       Simple: {

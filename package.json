@@ -8,7 +8,8 @@
     "build": "NODE_ENV=production astro build --host 0.0.0.0 --port 8282",
     "preview": "astro preview",
     "astro": "astro",
-    "prod": "node dist/server/entry.mjs"
+    "prod": "node dist/server/entry.mjs",
+    "test": "node test-endpoints.js"
   },
   "dependencies": {
     "@astrojs/check": "^0.3.1",

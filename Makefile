@@ -10,3 +10,6 @@ build:
 
 run:
 	@docker run -d --name local-ses -p 8282:8282 $(IMAGE_NAME):$(IMAGE_TAG)
+
+test:
+	@npm run test
