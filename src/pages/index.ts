@@ -17,7 +17,7 @@ export const emails: EmailType[] = [];
 
 async function handleSendEmail(data: Record<string, any>) {
   const from = data.get("Source") || "";
-  const to = data.get("Destination.ToAddresses.member.1") || "";
+  const toList = getToAddresses(data);
   const subject = data.get("Message.Subject.Data") || "";
   const text = data.get("Message.Body.Text.Data") || "";
   const html = data.get("Message.Body.Html.Data") || "";
@@ -30,7 +30,7 @@ async function handleSendEmail(data: Record<string, any>) {
   emails.push({
     id: currentId,
     from,
-    to,
+    to: toList.join(', ') ,
     subject,
     text,
     html,
@@ -56,6 +56,17 @@ async function handleSendEmail(data: Record<string, any>) {
     },
   });
 }
+
+function getToAddresses(data: Record<string, any>): string[] {
+    let memberCount = 1;
+    const addresses: string[] = [];
+    while (data.get(`Destination.ToAddresses.member.${memberCount}`)) {
+      const address = data.get(`Destination.ToAddresses.member.${memberCount}`);
+      addresses.push(address);
+      memberCount++;
+    }
+    return addresses;
+  }
 
 async function handleGetQuota() {
   const quotaResponse = `
