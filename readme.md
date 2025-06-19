@@ -9,7 +9,7 @@
 You can simply use `docker` to run the service locally
 
 ```bash
-docker run -d --name local-ses -p 8282:8282 kamranahmed/local-ses:latest
+docker run -d --name local-ses -p 8282:8282 dansyuqri/local-ses:latest
 ```
 
 This will start the service on port `8282`. Next, modify your SES client to use the local service. 

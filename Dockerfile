@@ -1,7 +1,6 @@
 FROM node:20-bullseye-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
-LABEL org.opencontainers.image.authors="kamranahmed.se@gmail.com"
 
 WORKDIR /app
 RUN chown -R node:node /app

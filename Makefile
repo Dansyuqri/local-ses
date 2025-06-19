@@ -1,4 +1,4 @@
-IMAGE_NAME := kamranahmed/local-ses
+IMAGE_NAME := dansyuqri/local-ses
 IMAGE_TAG := latest
 PLATFORMS := linux/amd64,linux/arm64,linux/arm/v7
 
