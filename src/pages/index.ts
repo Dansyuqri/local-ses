@@ -57,6 +57,49 @@ async function handleSendEmail(data: Record<string, any>) {
   });
 }
 
+async function handleSendRawEmail(data: Record<string, any>) {
+  const rawMessage = data.get("RawMessage.Data") || "";
+  const source = data.get("Source") || "";
+  const destinations = getRawEmailDestinations(data);
+
+  // Parse the raw email message
+  const emailData = parseRawEmailMessage(rawMessage, source, destinations);
+
+  const messageId = new Date().getTime();
+  const requestId = new Date().getTime() + Math.random() * 1000;
+
+  const currentId = emails.length + 1;
+
+  emails.push({
+    id: currentId,
+    from: emailData.from,
+    to: emailData.to,
+    subject: emailData.subject,
+    text: emailData.text,
+    html: emailData.html,
+    date: new Date(),
+    messageId: `${messageId}`,
+    status: 'delivery'
+  });
+
+  const sendRawEmailResponse = `
+    <SendRawEmailResponse xmlns="https://ses.amazonaws.com/doc/2010-12-01/">
+        <SendRawEmailResult>
+            <MessageId>${messageId}</MessageId>
+        </SendRawEmailResult>
+        <ResponseMetadata>
+            <RequestId>${requestId}</RequestId>
+        </ResponseMetadata>
+    </SendRawEmailResponse>
+  `;
+
+  return new Response(sendRawEmailResponse, {
+    headers: {
+      "Content-Type": "application/xml",
+    },
+  });
+}
+
 function getToAddresses(data: Record<string, any>): string[] {
     let memberCount = 1;
     const addresses: string[] = [];
@@ -67,6 +110,82 @@ function getToAddresses(data: Record<string, any>): string[] {
     }
     return addresses;
   }
+
+function getRawEmailDestinations(data: Record<string, any>): string[] {
+  let memberCount = 1;
+  const addresses: string[] = [];
+  while (data.get(`Destinations.member.${memberCount}`)) {
+    const address = data.get(`Destinations.member.${memberCount}`);
+    addresses.push(address);
+    memberCount++;
+  }
+  return addresses;
+}
+
+function parseRawEmailMessage(rawMessage: string, source: string, destinations: string[]): {
+  from: string;
+  to: string;
+  subject: string;
+  text: string;
+  html: string;
+} {
+  // Decode base64 if the message is base64 encoded
+  let decodedMessage = rawMessage;
+  try {
+    // Try to decode from base64
+    decodedMessage = atob(rawMessage);
+  } catch (e) {
+    // If it fails, assume it's already plain text
+    decodedMessage = rawMessage;
+  }
+
+  // Parse email headers and body
+  const lines = decodedMessage.split('\n');
+  let headerEndIndex = -1;
+  const headers: Record<string, string> = {};
+  
+  // Find headers
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === '') {
+      headerEndIndex = i;
+      break;
+    }
+    
+    const colonIndex = line.indexOf(':');
+    if (colonIndex > 0) {
+      const headerName = line.substring(0, colonIndex).toLowerCase().trim();
+      const headerValue = line.substring(colonIndex + 1).trim();
+      headers[headerName] = headerValue;
+    }
+  }
+
+  // Extract subject from headers
+  const subject = headers['subject'] || 'No Subject';
+  
+  // Extract from address (prefer header, fallback to source parameter)
+  const from = headers['from'] || source || 'Unknown';
+  
+  // Use destinations from parameters, fallback to To header
+  const to = destinations.length > 0 ? destinations.join(', ') : (headers['to'] || 'Unknown');
+
+  // Get body content (everything after headers)
+  const bodyLines = headerEndIndex >= 0 ? lines.slice(headerEndIndex + 1) : [];
+  const bodyContent = bodyLines.join('\n');
+
+  // Simple parsing - check if content contains HTML
+  const hasHtml = bodyContent.includes('<html>') || bodyContent.includes('<HTML>') || 
+                  bodyContent.includes('<body>') || bodyContent.includes('<BODY>') ||
+                  bodyContent.includes('<p>') || bodyContent.includes('<div>');
+
+  return {
+    from,
+    to,
+    subject,
+    text: hasHtml ? '' : bodyContent,
+    html: hasHtml ? bodyContent : ''
+  };
+}
 
 async function handleGetQuota() {
   const quotaResponse = `
@@ -107,6 +226,8 @@ export const POST: APIRoute = async ({ params, request }) => {
     return handleGetQuota();
   } else if (action === "SendEmail") {
     return handleSendEmail(data);
+  } else if (action === "SendRawEmail") {
+    return handleSendRawEmail(data);
   }
 
   return new Response(`Unsupported action: ${action}`, {
